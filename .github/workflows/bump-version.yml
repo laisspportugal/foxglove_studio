@@ -34,8 +34,8 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
 
-          - name: Bump version in root package.json
-          run: yarn version patch
+      - name: Bump version in root package.json
+        run: yarn version patch
 
       - name: Bump version in subdirectory package.json
         working-directory: packages/studio
