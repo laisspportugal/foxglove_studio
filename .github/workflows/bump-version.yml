@@ -34,14 +34,17 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
 
-      - name: Bump version
+          - name: Bump version in root package.json
+          run: yarn version patch
+
+      - name: Bump version in subdirectory package.json
+        working-directory: packages/studio
         run: yarn version patch
 
-      - name: Commit version bump
+      - name: Commit version bumps
         run: |
-          git add package.json yarn.lock
-          git commit -m "chore: bump version to $(jq -r .version < package.json)"
-          git tag -a "v$(jq -r .version < package.json)" -m "Version $(jq -r .version < package.json)"
+          git add package.json yarn.lock packages/studio/package.json
+          git commit -m "chore: bump versions in root and studio package.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
