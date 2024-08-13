@@ -19,6 +19,7 @@
     <a href="https://docs.foxglove.dev/changelog">Changelog</a>
     <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
     <a href="https://github.com/orgs/foxglove/discussions">Discussions</a>
+    <a href="https://github.com/orgs/foxglove/discussions">Discussions</a>
     <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
     <a href="https://foxglove.dev/slack">Slack</a>
     <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
