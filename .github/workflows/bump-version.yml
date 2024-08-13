@@ -49,6 +49,7 @@ jobs:
         run: yarn version patch
 
       - name: Commit version bumps
+        id: commit_version_bumps
         run: |
           git add package.json yarn.lock packages/studio/package.json
           git commit -m "chore: bump versions in root and studio package.json"
@@ -68,7 +69,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { data: pullRequest } = await github.pulls.create({
+            const pullRequest = await github.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Auto bump version',
@@ -77,7 +78,7 @@ jobs:
               body: 'Automatically bump the version.',
               draft: false
             });
-            return pullRequest.number;
+            core.setOutput('pullRequest', pullRequest.number);
 
       - name: Auto Merge Pull Request
         uses: actions/github-script@v6
@@ -87,5 +88,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: ${{ steps.create_pr.outputs.pullRequest }},
-              merge_method: squash
+              merge_method: 'squash'
             });
