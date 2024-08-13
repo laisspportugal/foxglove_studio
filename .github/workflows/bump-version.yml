@@ -66,27 +66,20 @@ jobs:
 
       - name: Create Pull Request
         id: create_pr
-        uses: actions/github-script@v6
+        uses: octokit/request-action@v3
         with:
-          script: |
-            const pullRequest = await github.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Auto bump version',
-              head: `version-bump-${{ github.run_id }}`,
-              base: 'main',
-              body: 'Automatically bump the version.',
-              draft: false
-            });
-            core.setOutput('pullRequest', pullRequest.number);
+          route: POST /repos/${{ github.repository }}/pulls
+          title: "Auto bump version"
+          head: "version-bump-${{ github.run_id }}"
+          base: "main"
+          body: "Automatically bump the version."
+        env:
+          GITHUB_TOKEN: ${{ secrets.LICHTBLICK_GITHUB_TOKEN }}
 
       - name: Auto Merge Pull Request
-        uses: actions/github-script@v6
+        uses: octokit/request-action@v3
         with:
-          script: |
-            await github.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: ${{ steps.create_pr.outputs.pullRequest }},
-              merge_method: 'squash'
-            });
+          route: PUT /repos/${{ github.repository }}/pulls/${{ steps.create_pr.outputs.pullRequest }}/merge
+          merge_method: squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.LICHTBLICK_GITHUB_TOKEN }}
