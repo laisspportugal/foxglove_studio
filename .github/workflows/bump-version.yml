@@ -8,12 +8,11 @@ on:
 jobs:
   bump:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-            lfs: true
+          lfs: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -22,11 +21,19 @@ jobs:
 
       - run: corepack enable
 
+      - name: Cache yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install dependencies
         run: yarn install --mode skip-build
         env:
-          # yarn runs in immutable mode "by default" in CI -- turning this off requires an
-          # undocumented env var
           YARN_ENABLE_IMMUTABLE_INSTALLS: false
 
       - name: Set up Git
@@ -45,11 +52,40 @@ jobs:
         run: |
           git add package.json yarn.lock packages/studio/package.json
           git commit -m "chore: bump versions in root and studio package.json"
+          echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.LICHTBLICK_GITHUB_TOKEN }}
 
-      - name: Push changes
+      - name: Push changes to a new branch
         run: |
-          git push origin main
+          git checkout -b version-bump-${{ github.run_id }}
+          git push origin version-bump-${{ github.run_id }}
         env:
           GITHUB_TOKEN: ${{ secrets.LICHTBLICK_GITHUB_TOKEN }}
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pullRequest } = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Auto bump version',
+              head: `version-bump-${{ github.run_id }}`,
+              base: 'main',
+              body: 'Automatically bump the version.',
+              draft: false
+            });
+            return pullRequest.number;
+
+      - name: Auto Merge Pull Request
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ steps.create_pr.outputs.pullRequest }},
+              merge_method: squash
+            });
