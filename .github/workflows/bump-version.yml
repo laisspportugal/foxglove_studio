@@ -12,6 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.LICHTBLICK_GITHUB_TOKEN }}
           lfs: true
 
       - name: Set up Node.js
@@ -52,17 +53,13 @@ jobs:
         id: commit_version_bumps
         run: |
           git add package.json yarn.lock packages/studio/package.json
-          git commit -m "chore: bump versions in root and studio package.json"
+          git commit -m "chore: bump versions in root and studio package.json [skip actions]"
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.LICHTBLICK_GITHUB_TOKEN }}
 
       - name: Push changes to a new branch
         run: |
           git checkout -b version-bump-${{ github.run_id }}
           git push origin version-bump-${{ github.run_id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.LICHTBLICK_GITHUB_TOKEN }}
 
       - name: Create Pull Request
         id: create_pr
