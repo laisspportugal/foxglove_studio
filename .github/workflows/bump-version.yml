@@ -56,34 +56,11 @@ jobs:
           git commit -m "chore: bump versions in root and studio package.json [skip actions]"
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
-      - name: Push changes to a new branch
+      - name: Commit version bumps
         run: |
-          git checkout -b version-bump-${{ github.run_id }}
-          git push origin version-bump-${{ github.run_id }}
+          git add package.json yarn.lock packages/suite/package.json
+          git commit -m "chore: bump versions in root and suite package.json"
 
-      - name: Create Pull Request
-        id: create_pr
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const pullRequest = await github.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Auto bump version',
-              head: `version-bump-${{ github.run_id }}`,
-              base: 'main',
-              body: 'Automatically bump the version.',
-              draft: false
-            });
-            core.setOutput('pullRequest', pullRequest.number);
-
-      - name: Auto Merge Pull Request
-        uses: actions/github-script@v6
-        with:
-          script: |
-            await github.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: ${{ steps.create_pr.outputs.pullRequest }},
-              merge_method: 'squash'
-            });
+      - name: Push changes
+        run: |
+          git push origin main
