@@ -56,11 +56,6 @@ jobs:
           git commit -m "chore: bump versions in root and studio package.json [skip actions]"
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
-      - name: Commit version bumps
-        run: |
-          git add package.json yarn.lock packages/suite/package.json
-          git commit -m "chore: bump versions in root and suite package.json"
-
       - name: Push changes
         run: |
           git push origin main
