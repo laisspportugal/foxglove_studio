@@ -13,6 +13,7 @@
     <br />
     <br />
     <a href="https://foxglove.dev/download">Download</a>
+    <a href="https://foxglove.dev/download">Download</a>
     <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
     <a href="https://docs.foxglove.dev/">Docs</a>
     <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
